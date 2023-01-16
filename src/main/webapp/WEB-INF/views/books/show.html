@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book</title>
+</head>
+<body>
+<div>
+  <p th:text="'The book: ' + ${book.getBook_name()} + '; Author: ' + ${book.getAuthor()} +
+  '; Published in ' + ${book.getPublish_date()}"></p>
+    <form th:if="${joinBook==null}" th:method="PATCh" th:action="@{/books/{book_name}(book_name=${book.getBook_name()})}">
+        <p>This book did not taken</p>
+        <select th:object="${person}" th:field="*{id}" id="person">
+            <option th:each="person : ${people}" th:value="${person.getId()}" th:text="${person.getName()}"></option>
+        </select>
+        <input type="submit" value="Assign the book"/>
+    </form>
+    <p th:unless="${joinBook==null}" th:text="${joinBook.getName()} + ' has the book now'">No</p>
+
+  <a th:href="@{/books/{book_name}/edit(book_name=${book.getBook_name()})}">Edit</a>
+</div>
+<form th:method="DELETE" th:action="@{/books/{book_name}(book_name=${book.getBook_name()})}">
+  <input type="submit" value="Delete"/>
+</form>
+</body>
+</html>
