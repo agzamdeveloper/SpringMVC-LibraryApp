@@ -2,51 +2,77 @@ package library_app_project.dao;
 
 import library_app_project.model.Book;
 import library_app_project.model.Person;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class PersonDAO {
-    private final JdbcTemplate jdbcTemplate;
+
+    private final SessionFactory sessionFactory;
 
     @Autowired
-    public PersonDAO(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public PersonDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
+    @Transactional(readOnly = true)
     public List<Person> index(){
-        return jdbcTemplate.query("SELECT * FROM People", new PersonMapper());
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("select p from Person p", Person.class).getResultList();
     }
 
-    public Optional<Person> checkUnique(String name){
-        return jdbcTemplate.query("SELECT * FROM People WHERE person_name=?",new Object[]{name},
-                new PersonMapper()).stream().findAny();
-    }
-    public Person show(String name){
-        return jdbcTemplate.query("SELECT * FROM People WHERE person_name=?", new Object[]{name},
-                new PersonMapper()).stream().findAny().orElse(null);
+    @Transactional(readOnly = true)
+    public Person checkUnique(String name){
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("select p from Person p where p.name = :name", Person.class).
+                setParameter("name", name).stream().findAny().orElse(null);
     }
 
-    public List<Book> joinPerson(String person_name){
-        return jdbcTemplate.query("SELECT * FROM People LEFT JOIN book b on people.person_id = b.person_id WHERE person_name=?",
-                new Object[]{person_name}, new BookMapper());
+    @Transactional(readOnly = true)
+    public Person show(int id){
+        Session session = sessionFactory.getCurrentSession();
+        return session.get(Person.class, id);
     }
 
+    @Transactional
+    public List<Book> joinPerson(int id){
+        Session session = sessionFactory.getCurrentSession();
+        Person person = session.get(Person.class, id);
+        List<Book> books = person.getBooks();
+        System.out.println(books);
+        return books;
+    }
+
+    @Transactional
     public void save(Person newPerson){
-        jdbcTemplate.update("INSERT INTO People(person_name, birth_date) VALUES (?,?)",
-                newPerson.getName(), newPerson.getBirth_date());
+        Session session = sessionFactory.getCurrentSession();
+        session.save(newPerson);
     }
 
-    public void edit(Person editPerson, String name){
-        jdbcTemplate.update("UPDATE People SET person_name=?, birth_date=? WHERE person_name=?",
-                editPerson.getName(), editPerson.getBirth_date(), name);
+    @Transactional
+    public void edit(Person editPerson, int id){
+        Session session = sessionFactory.getCurrentSession();
+        Person personToBeUpdated = session.get(Person.class, id);
+
+        personToBeUpdated.setName(editPerson.getName());
+        personToBeUpdated.setBirth_date(editPerson.getBirth_date());
     }
 
-    public void delete(String name){
-        jdbcTemplate.update("DELETE FROM People WHERE person_name=?", name);
+    @Transactional
+    public void delete(int id){
+        Session session = sessionFactory.getCurrentSession();
+        Person deletePerson = session.get(Person.class, id);
+        List<Book> books = deletePerson.getBooks();
+        for (Book book: books) {
+            book.setOwner(null);
+        }
+        session.remove(deletePerson);
     }
 }

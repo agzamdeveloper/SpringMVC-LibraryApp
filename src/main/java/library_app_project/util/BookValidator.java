@@ -23,7 +23,7 @@ public class BookValidator implements Validator {
     public void validate(Object target, Errors errors) {
         Book book = (Book) target;
 
-        if (bookDAO.checkUnique(book.getBook_name()).isPresent()){
+        if (bookDAO.checkUnique(book.getBook_name()) != null){
             errors.rejectValue("book_name","", "This name is already taken!");
         }
     }

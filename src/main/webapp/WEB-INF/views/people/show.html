@@ -7,15 +7,16 @@
 <body>
 <div>
  <p th:text="'Name: ' + ${person.getName()} + '; The year of birth: ' + ${person.getBirth_date()}"></p>
-    <br>
-    <p th:if="${books==null}">Person did not take books</p>
-    <p th:unless="${books==null}">Books:</p>
-    <div th:unless="${books==null}" th:each="book : ${books}">
+    <hr>
+    <p th:if="${books.isEmpty()}">Person did not take books</p>
+    <p th:unless="${books.isEmpty()}"><b>Books:</b></p>
+    <div th:unless="${books.isEmpty()}" th:each="book : ${books}">
         <p th:text="${book.getBook_name()} + ' , ' + ${book.getAuthor()}"></p>
     </div>
-    <a th:href="@{/people/{name}/edit(name=${person.getName()})}">Edit</a>
 </div>
-<form th:method="DELETE" th:action="@{/people/{name}(name=${person.getName()})}">
+<hr>
+<a th:href="@{/people/{id}/edit(id=${person.getId()})}">Edit</a>
+<form th:method="DELETE" th:action="@{/people/{id}/delete(id=${person.getId()})}">
     <input type="submit" value="Delete"/>
 </form>
 </body>

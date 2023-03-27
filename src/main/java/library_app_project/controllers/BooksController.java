@@ -32,20 +32,25 @@ public class BooksController {
         return "books/index";
     }
 
-    @GetMapping("/{book_name}")
-    public String show(Model model, @PathVariable String book_name){
-        model.addAttribute("book", bookDAO.show(book_name));
-        model.addAttribute("joinBook", bookDAO.joinBook(book_name));
+    @GetMapping("/{id}")
+    public String show(Model model, @PathVariable("id") int id){
+        model.addAttribute("book", bookDAO.show(id));
+        model.addAttribute("joinBook", bookDAO.joinBook(id));
         model.addAttribute("people", personDAO.index());
         model.addAttribute("person", new Person());
         return "books/show";
     }
 
-    @PatchMapping("/{book_name}")
-    public String assign(@PathVariable String book_name,
+    @PatchMapping("/{id}/assign")
+    public String assign(@PathVariable("id") int id,
                          @ModelAttribute("person") Person person){
-        //Надо придумать другое решение для возврата страницы /books/{book_name}
-        bookDAO.assign(book_name, person.getId());
+        bookDAO.assign(id, person.getId());
+        return "redirect:/books";
+    }
+
+    @PatchMapping("/{id}/release")
+    public String release(@PathVariable("id") int id){
+        bookDAO.release(id);
         return "redirect:/books";
     }
 
@@ -67,32 +72,27 @@ public class BooksController {
         return "redirect:/books";
     }
 
-    @GetMapping("{book_name}/edit")
-    public String edit(@PathVariable String book_name, Model model){
-        model.addAttribute("book", bookDAO.show(book_name));
+    @GetMapping("{id}/edit")
+    public String edit(@PathVariable("id") int id, Model model){
+        model.addAttribute("book", bookDAO.show(id));
         return "books/edit";
     }
 
-    @PatchMapping("/{book_name}/edit")
-    public String save(@PathVariable String book_name, @ModelAttribute("book") @Valid Book book,
+    @PatchMapping("/{id}/edit")
+    public String save(@PathVariable("id") int id, @ModelAttribute("book") @Valid Book book,
                        BindingResult bindingResult){
-
-        // Сделал так чтобы можно было чтобы изменить только дату рождения а имя таким оставить
-        if(!book_name.equals(book.getBook_name())){
-            bookValidator.validate(book, bindingResult);
-        }
 
         if(bindingResult.hasErrors()){
             return "books/edit";
         }
 
-        bookDAO.edit(book, book_name);
+        bookDAO.edit(book, id);
         return "redirect:/books";
     }
 
-    @DeleteMapping("/{book_name}")
-    public String delete(@PathVariable("book_name") String book_name){
-        bookDAO.delete(book_name);
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable("id") int id){
+        bookDAO.delete(id);
         return "redirect:/books";
     }
 }

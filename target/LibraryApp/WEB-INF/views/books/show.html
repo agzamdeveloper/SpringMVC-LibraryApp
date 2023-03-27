@@ -8,18 +8,21 @@
 <div>
   <p th:text="'The book: ' + ${book.getBook_name()} + '; Author: ' + ${book.getAuthor()} +
   '; Published in ' + ${book.getPublish_date()}"></p>
-    <form th:if="${joinBook==null}" th:method="PATCh" th:action="@{/books/{book_name}(book_name=${book.getBook_name()})}">
+    <form th:if="${joinBook==null}" th:method="PATCh" th:action="@{/books/{id}/assign(id=${book.getId()})}">
         <p>This book did not taken</p>
         <select th:object="${person}" th:field="*{id}" id="person">
             <option th:each="person : ${people}" th:value="${person.getId()}" th:text="${person.getName()}"></option>
         </select>
         <input type="submit" value="Assign the book"/>
     </form>
-    <p th:unless="${joinBook==null}" th:text="${joinBook.getName()} + ' has the book now'">No</p>
-
-  <a th:href="@{/books/{book_name}/edit(book_name=${book.getBook_name()})}">Edit</a>
+    <form th:unless="${joinBook==null}" th:method="PATCh" th:action="@{/books/{id}/release(id=${book.getId()})}">
+        <p th:text="${joinBook.getName()} + ' has the book now'">No</p>
+        <input type="submit" value="Release the book"/>
+    </form>
 </div>
-<form th:method="DELETE" th:action="@{/books/{book_name}(book_name=${book.getBook_name()})}">
+<hr>
+<a th:href="@{/books/{id}/edit(id=${book.getId()})}">Edit</a>
+<form th:method="DELETE" th:action="@{/books/{id}(id=${book.getId()})}">
   <input type="submit" value="Delete"/>
 </form>
 </body>

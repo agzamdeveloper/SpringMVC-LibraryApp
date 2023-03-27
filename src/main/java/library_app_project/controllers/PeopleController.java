@@ -27,10 +27,10 @@ public class PeopleController {
         return "people/index";
     }
 
-    @GetMapping("/{name}")
-    public String show(Model model, @PathVariable String name){
-        model.addAttribute("person", personDAO.show(name));
-        model.addAttribute("books",personDAO.joinPerson(name));
+    @GetMapping("/{id}")
+    public String show(Model model, @PathVariable("id") int id){
+        model.addAttribute("person", personDAO.show(id));
+        model.addAttribute("books",personDAO.joinPerson(id));
         return "people/show";
     }
 
@@ -44,7 +44,7 @@ public class PeopleController {
     public String create(@ModelAttribute("person") @Valid Person person,
                          BindingResult bindingResult){
         personValidator.validate(person, bindingResult);
-        if (bindingResult.hasErrors()){
+        if(bindingResult.hasErrors()){
             return "people/new";
         }
 
@@ -52,33 +52,27 @@ public class PeopleController {
         return "redirect:/people";
     }
 
-    @GetMapping("{name}/edit")
-    public String edit(@PathVariable String name, Model model){
-        model.addAttribute("person", personDAO.show(name));
+    @GetMapping("{id}/edit")
+    public String edit(@PathVariable("id") int id, Model model){
+        model.addAttribute("person", personDAO.show(id));
         return "people/edit";
     }
 
 
-    @PatchMapping("/{name}")
-    public String save(@PathVariable String name, @ModelAttribute("person") @Valid Person person,
+    @PatchMapping("/{id}/edit")
+    public String save(@PathVariable("id") int id, @ModelAttribute("person") @Valid Person person,
                        BindingResult bindingResult){
-
-        // Сделал так чтобы можно было чтобы изменить только дату рождения а имя таким оставить
-        if(!name.equals(person.getName())){
-            personValidator.validate(person, bindingResult);
-        }
-
         if(bindingResult.hasErrors()){
             return "people/edit";
         }
 
-        personDAO.edit(person, name);
+        personDAO.edit(person, id);
         return "redirect:/people";
     }
 
-    @DeleteMapping("/{name}")
-    public String delete(@PathVariable("name") String name){
-        personDAO.delete(name);
+    @DeleteMapping("/{id}/delete")
+    public String delete(@PathVariable("id") int id){
+        personDAO.delete(id);
         return "redirect:/people";
     }
 }

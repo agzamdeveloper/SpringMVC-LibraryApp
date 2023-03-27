@@ -5,7 +5,7 @@
     <title>Edit person</title>
 </head>
 <body>
-<form th:method="PATCh" th:action="@{/people/{name}(name=${person.getName()})}" th:object="${person}">
+<form th:method="PATCh" th:action="@{/people/{id}/edit(id=${person.getId()})}" th:object="${person}">
   <label for="name">Edit the name: </label>
   <input th:field="*{name}" type="text"  id="name">
   <div style="color: red" th:if="${#fields.hasErrors()}" th:errors="*{name}">Name error</div>
