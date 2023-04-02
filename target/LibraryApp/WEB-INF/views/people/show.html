@@ -11,7 +11,8 @@
     <p th:if="${books.isEmpty()}">Person did not take books</p>
     <p th:unless="${books.isEmpty()}"><b>Books:</b></p>
     <div th:unless="${books.isEmpty()}" th:each="book : ${books}">
-        <p th:text="${book.getBook_name()} + ' , ' + ${book.getAuthor()}"></p>
+        <p th:style="${book.getOverdue() == true ? 'color:red' : 'color: black'}"
+           th:text="${book.getBook_name()} + ' , ' + ${book.getAuthor()}"></p>
     </div>
 </div>
 <hr>
